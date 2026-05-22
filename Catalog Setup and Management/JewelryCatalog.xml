@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-engine-xml>
+    <!-- Catalog -->
+    <ProdCatalog prodCatalogId="JWL_CATALOG" catalogName="Fine Jewelry Catalog"/>
+
+    <!-- Categories -->
+    <ProductCategory productCategoryId="JWL_ROOT" productCategoryTypeId="CATALOG_CATEGORY" categoryName="Jewelry Root"/>
+    <ProductCategory productCategoryId="JWL_RINGS" productCategoryTypeId="CATALOG_CATEGORY" categoryName="Rings"/>
+    <ProductCategory productCategoryId="JWL_NECKLACES" productCategoryTypeId="CATALOG_CATEGORY" categoryName="Necklaces"/>
+    <ProductCategory productCategoryId="JWL_PROMO_CAT" productCategoryTypeId="CATALOG_CATEGORY" categoryName="Promotions"/>
+
+    <!-- Category Rollups -->
+    <ProductCategoryRollup productCategoryId="JWL_RINGS" parentProductCategoryId="JWL_ROOT" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductCategoryRollup productCategoryId="JWL_NECKLACES" parentProductCategoryId="JWL_ROOT" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductCategoryRollup productCategoryId="JWL_PROMO_CAT" parentProductCategoryId="JWL_ROOT" fromDate="2026-01-01 00:00:00.0"/>
+
+    <!-- Catalog Category Link -->
+    <ProdCatalogCategory prodCatalogId="JWL_CATALOG" productCategoryId="JWL_ROOT" prodCatalogCategoryTypeId="PCCT_BROWSE_ROOT" fromDate="2026-01-01 00:00:00.0"/>
+    <ProdCatalogCategory prodCatalogId="JWL_CATALOG" productCategoryId="JWL_PROMO_CAT" prodCatalogCategoryTypeId="PCCT_PROMOTIONS" fromDate="2026-01-01 00:00:00.0"/>
+
+    <!-- Features -->
+    <ProductFeatureCategory productFeatureCategoryId="JWL_RING_SIZE" description="Ring Size"/>
+    <ProductFeatureCategory productFeatureCategoryId="JWL_METAL_TYPE" description="Metal Type"/>
+
+    <ProductFeature productFeatureId="JWL_SIZE_6" productFeatureTypeId="SIZE" productFeatureCategoryId="JWL_RING_SIZE" description="Size 6"/>
+    <ProductFeature productFeatureId="JWL_SIZE_7" productFeatureTypeId="SIZE" productFeatureCategoryId="JWL_RING_SIZE" description="Size 7"/>
+    <ProductFeature productFeatureId="JWL_METAL_GOLD" productFeatureTypeId="COLOR" productFeatureCategoryId="JWL_METAL_TYPE" description="14K Gold"/>
+    <ProductFeature productFeatureId="JWL_METAL_SILVER" productFeatureTypeId="COLOR" productFeatureCategoryId="JWL_METAL_TYPE" description="Sterling Silver"/>
+
+    <!-- Virtual Product: Diamond Solitaire Ring -->
+    <Product productId="JWL-RING-1" productTypeId="GOOD" isVirtual="Y" isVariant="N" internalName="Diamond Solitaire Ring"/>
+    <ProductCategoryMember productCategoryId="JWL_RINGS" productId="JWL-RING-1" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductCategoryMember productCategoryId="JWL_PROMO_CAT" productId="JWL-RING-1" fromDate="2026-01-01 00:00:00.0"/>
+
+    <!-- Apply Features to Virtual Product (SELECTABLE) -->
+    <ProductFeatureAppl productId="JWL-RING-1" productFeatureId="JWL_SIZE_6" productFeatureApplTypeId="SELECTABLE_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductFeatureAppl productId="JWL-RING-1" productFeatureId="JWL_SIZE_7" productFeatureApplTypeId="SELECTABLE_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductFeatureAppl productId="JWL-RING-1" productFeatureId="JWL_METAL_GOLD" productFeatureApplTypeId="SELECTABLE_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductFeatureAppl productId="JWL-RING-1" productFeatureId="JWL_METAL_SILVER" productFeatureApplTypeId="SELECTABLE_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+
+    <!-- Variant Product: Gold Size 6 -->
+    <Product productId="JWL-R1-G-6" productTypeId="GOOD" isVirtual="N" isVariant="Y" internalName="Diamond Solitaire - Gold Size 6"/>
+    <ProductAssoc productId="JWL-RING-1" productIdTo="JWL-R1-G-6" productAssocTypeId="PRODUCT_VARIANT" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductFeatureAppl productId="JWL-R1-G-6" productFeatureId="JWL_SIZE_6" productFeatureApplTypeId="STANDARD_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductFeatureAppl productId="JWL-R1-G-6" productFeatureId="JWL_METAL_GOLD" productFeatureApplTypeId="STANDARD_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+
+    <!-- Variant Product: Silver Size 7 -->
+    <Product productId="JWL-R1-S-7" productTypeId="GOOD" isVirtual="N" isVariant="Y" internalName="Diamond Solitaire - Silver Size 7"/>
+    <ProductAssoc productId="JWL-RING-1" productIdTo="JWL-R1-S-7" productAssocTypeId="PRODUCT_VARIANT" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductFeatureAppl productId="JWL-R1-S-7" productFeatureId="JWL_SIZE_7" productFeatureApplTypeId="STANDARD_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductFeatureAppl productId="JWL-R1-S-7" productFeatureId="JWL_METAL_SILVER" productFeatureApplTypeId="STANDARD_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+
+    <!-- Promotion -->
+    <ProductPromo productPromoId="JWL_HOLIDAY_PROMO" promoName="Holiday Jewelry Promotion" userEntered="Y"/>
+    <ProductPromoRule productPromoId="JWL_HOLIDAY_PROMO" productPromoRuleId="01" ruleName="Promo Rule 1"/>
+    <ProductPromoCond productPromoId="JWL_HOLIDAY_PROMO" productPromoRuleId="01" productPromoCondSeqId="01" inputParamEnumId="PPIP_PRODUCT_QUANT" operatorEnumId="PPC_EQ" condValue="1"/>
+    <ProductPromoAction productPromoId="JWL_HOLIDAY_PROMO" productPromoRuleId="01" productPromoActionSeqId="01" productPromoActionEnumId="PROMO_PROD_DISC" amount="15"/>
+    
+    <!-- Link Promotion to Category -->
+    <ProductPromoCategory productPromoId="JWL_HOLIDAY_PROMO" productPromoRuleId="01" productPromoActionSeqId="01" productPromoCondSeqId="_NA_" productCategoryId="JWL_PROMO_CAT" andGroupId="_NA_" productPromoApplEnumId="PPPA_INCLUDE"/>
+</entity-engine-xml>
