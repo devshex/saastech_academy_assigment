@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-facade-xml type="seed">
+    <tutorial.project.ProjectTask taskId="TASK-101" taskName="Design Database Schema" status="IN_PROGRESS" dueDate="2026-05-01"/>
+    <tutorial.project.ProjectTask taskId="TASK-102" taskName="Write API Endpoints" status="OPEN" dueDate="2026-05-15"/>
+</entity-facade-xml>

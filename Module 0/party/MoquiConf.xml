@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<moqui-conf xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/moqui-conf-3.xsd">
+
+
+    <screen-facade>
+        <screen location="component://webroot/screen/webroot/apps.xml">
+
+            <!-- Main party list screen — accessible at /apps/partyScreen -->
+            <subscreens-item name="partyScreen"
+                             location="component://party/screen/PartyScreen.xml"
+                             menu-title="Party Screen"
+                             menu-include="true"/>
+
+            <!-- Person profile detail screen — accessible at /apps/PersonProfile -->
+            <!-- Linked from PartyScreen via url="../PersonProfile" -->
+            <subscreens-item name="PersonProfile"
+                             location="component://party/screen/PersonProfile.xml"
+                             menu-title="Person Profile"
+                             menu-include="false"/>
+
+        </screen>
+    </screen-facade>
+</moqui-conf>

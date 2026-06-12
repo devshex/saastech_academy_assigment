@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    REST API definition for the party component.
+    Placed in the ROOT service/ directory so Moqui auto-discovers it on startup.
+    (Moqui scans service/*.rest.xml in every component automatically.)
+
+    REST endpoint generated:
+        POST  /rest/party/person
+              → calls party.PersonService.create#Person
+
+    Postman / curl:
+        curl -X POST http://localhost:8080/rest/party/person \
+             -H "Content-Type: application/json" \
+             -d '{"partyId":"TEST-USER-01","firstName":"Bruce","lastName":"Wayne"}'
+-->
+<resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/rest-api-3.xsd"
+          name="party" require-authentication="anonymous-all">
+
+    <!-- POST /rest/party/person → create#Person -->
+    <resource name="person">
+        <method type="post">
+            <service name="party.PersonService.create#Person"/>
+        </method>
+    </resource>
+
+</resource>

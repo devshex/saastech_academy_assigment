@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    component.xml — Party Component Registration
+
+    In Moqui 3.x, the <component> element only needs name and version.
+    Moqui AUTO-DISCOVERS everything from standard directory names:
+      • entity/   → entity definitions  (tables created automatically)
+      • service/  → service XML files   (services registered automatically)
+      • screen/   → screen XML files    (screens registered automatically)
+      • data/     → data XML files      (loaded via ./gradlew load)
+
+    No <resource> tags are needed or valid here.
+-->
+<component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/moqui-conf-3.xsd"
+           name="party" version="1.0.0"/>

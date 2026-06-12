@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://moqui.org/xsd/service-definition-3.xsd">
+
+    <service verb="create" noun="Person">
+        <in-parameters>
+            <parameter name="partyId" required="true"/>
+            <parameter name="firstName" required="true"/>
+            <parameter name="lastName" required="true"/>
+        </in-parameters>
+        <actions>
+            <script><![CDATA[
+                // Step 1: Create the hub record
+                EntityValue newParty = ec.entity.makeValue("tutorial.party.Party")
+                newParty.set("partyId", partyId)
+                newParty.set("partyTypeEnumId", "PERSON")
+                newParty.set("createdDate", ec.user.nowTimestamp)
+                newParty.create()
+
+                // Step 2: Create the extension record
+                EntityValue newPerson = ec.entity.makeValue("tutorial.party.Person")
+                newPerson.set("partyId", partyId)
+                newPerson.set("firstName", firstName)
+                newPerson.set("lastName", lastName)
+                newPerson.create()
+            ]]></script>
+        </actions>
+    </service>
+
+    <service verb="create" noun="PartyGroup">
+        <in-parameters>
+            <parameter name="partyId" required="true"/>
+            <parameter name="groupName" required="true"/>
+            <parameter name="description"/>
+        </in-parameters>
+        <actions>
+            <script><![CDATA[
+                // Step 1: Create the hub record (Notice the type is PARTY_GROUP)
+                EntityValue newParty = ec.entity.makeValue("tutorial.party.Party")
+                newParty.set("partyId", partyId)
+                newParty.set("partyTypeEnumId", "PARTY_GROUP")
+                newParty.set("createdDate", ec.user.nowTimestamp)
+                newParty.create()
+
+                // Step 2: Create the organization extension record
+                EntityValue newGroup = ec.entity.makeValue("tutorial.party.PartyGroup")
+                newGroup.set("partyId", partyId)
+                newGroup.set("groupName", groupName)
+                newGroup.set("description", description)
+                newGroup.create()
+            ]]></script>
+        </actions>
+    </service>
+
+    <service verb="create" noun="PartyContact">
+        <in-parameters>
+            <parameter name="partyId" required="true"/>
+            <parameter name="contactMechId" required="true"/>
+            <parameter name="contactMechTypeId" required="true"/>
+            <parameter name="infoString" required="true"/>
+        </in-parameters>
+        <actions>
+            <script><![CDATA[
+                // Step 1: Create the floating Contact Method (The actual Email/Phone record)
+                EntityValue newContact = ec.entity.makeValue("tutorial.party.ContactMech")
+                newContact.set("contactMechId", contactMechId)
+                newContact.set("contactMechTypeId", contactMechTypeId)
+                newContact.set("infoString", infoString)
+                newContact.set("createdDate", ec.user.nowTimestamp)
+                newContact.create()
+
+                // Step 2: The Bridge Table - Tie the floating email/phone to the specific User or Group!
+                EntityValue newLink = ec.entity.makeValue("tutorial.party.PartyContactMech")
+                newLink.set("partyId", partyId)
+                newLink.set("contactMechId", contactMechId)
+                newLink.set("fromDate", ec.user.nowTimestamp)
+                // We leave thruDate blank because the contact is currently active!
+                newLink.create()
+            ]]></script>
+        </actions>
+    </service>
+
+    <!-- Deactivates a contact by setting thruDate = now.
+         This is the "Effective Dating" pattern — no data is deleted,
+         history is preserved. NULL thruDate = active, a date = expired. -->
+    <service verb="deactivate" noun="PartyContact">
+        <in-parameters>
+            <parameter name="partyId"       required="true"/>
+            <parameter name="contactMechId" required="true"/>
+            <parameter name="fromDate"      type="Timestamp" required="true"/>
+        </in-parameters>
+        <actions>
+            <script><![CDATA[
+                // Fetch the exact bridge record using composite PK
+                def link = ec.entity.find("tutorial.party.PartyContactMech")
+                    .condition("partyId", partyId)
+                    .condition("contactMechId", contactMechId)
+                    .condition("fromDate", fromDate)
+                    .one()
+
+                if (link != null) {
+                    // Setting thruDate = now marks it as "no longer active"
+                    link.set("thruDate", ec.user.nowTimestamp)
+                    link.update()
+                    ec.logger.info("Deactivated contact " + contactMechId + " for party " + partyId)
+                } else {
+                    ec.message.addError("Contact record not found.")
+                }
+            ]]></script>
+        </actions>
+    </service>
+
+    <!-- Reactivate: clears thruDate (sets back to NULL) so the contact is active again.
+         Mirror of deactivate — NULL thruDate = active, a date = expired. -->
+    <service verb="reactivate" noun="PartyContact">
+        <in-parameters>
+            <parameter name="partyId"       required="true"/>
+            <parameter name="contactMechId" required="true"/>
+            <parameter name="fromDate"      type="Timestamp" required="true"/>
+        </in-parameters>
+        <actions>
+            <script><![CDATA[
+                // Fetch the exact bridge record using its composite PK
+                def link = ec.entity.find("tutorial.party.PartyContactMech")
+                    .condition("partyId", partyId)
+                    .condition("contactMechId", contactMechId)
+                    .condition("fromDate", fromDate)
+                    .one()
+
+                if (link != null) {
+                    // Setting thruDate = null marks it as "active again"
+                    link.set("thruDate", null)
+                    link.update()
+                    ec.logger.info("Reactivated contact " + contactMechId + " for party " + partyId)
+                } else {
+                    ec.message.addError("Contact record not found.")
+                }
+            ]]></script>
+        </actions>
+    </service>
+
+    <!-- ========================================== -->
+    <!-- Party Relationship Services                -->
+    <!-- ========================================== -->
+
+    <!-- Connects two parties (e.g., Person to Group) -->
+    <service verb="create" noun="PartyRelationship">
+        <in-parameters>
+            <parameter name="fromPartyId" required="true"/>
+            <parameter name="toPartyId" required="true"/>
+            <parameter name="roleTypeId" required="true" default-value="MEMBER"/>
+        </in-parameters>
+        <actions>
+            <script><![CDATA[
+                def existing = ec.entity.find("tutorial.party.PartyRelationship")
+                    .condition("fromPartyId", fromPartyId)
+                    .condition("toPartyId", toPartyId)
+                    .condition("roleTypeId", roleTypeId)
+                    .condition("thruDate", null)
+                    .one()
+
+                if (existing) {
+                    ec.message.addError("This relationship is already active!")
+                    return
+                }
+
+                def newRel = ec.entity.makeValue("tutorial.party.PartyRelationship")
+                newRel.setAll(context)
+                newRel.set("fromDate", ec.user.nowTimestamp)
+                newRel.create()
+
+                ec.logger.info("Created relationship: " + fromPartyId + " -> " + toPartyId)
+            ]]></script>
+        </actions>
+    </service>
+
+    <!-- Deactivates a relationship (Effective Dating) -->
+    <service verb="deactivate" noun="PartyRelationship">
+        <in-parameters>
+            <parameter name="fromPartyId" required="true"/>
+            <parameter name="toPartyId" required="true"/>
+            <parameter name="roleTypeId" required="true"/>
+            <parameter name="fromDate" type="Timestamp" required="true"/>
+        </in-parameters>
+        <actions>
+            <script><![CDATA[
+                def rel = ec.entity.find("tutorial.party.PartyRelationship")
+                    .condition("fromPartyId", fromPartyId)
+                    .condition("toPartyId", toPartyId)
+                    .condition("roleTypeId", roleTypeId)
+                    .condition("fromDate", fromDate)
+                    .one()
+
+                if (rel != null) {
+                    rel.set("thruDate", ec.user.nowTimestamp)
+                    rel.update()
+                } else {
+                    ec.message.addError("Relationship not found.")
+                }
+            ]]></script>
+        </actions>
+    </service>
+
+</services>

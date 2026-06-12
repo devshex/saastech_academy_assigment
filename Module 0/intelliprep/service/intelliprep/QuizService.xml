@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://moqui.org/xsd/service-definition-3.xsd">
+    <service verb="create" noun="MultipleChoiceQuestion">
+        <in-parameters>
+            <parameter name="questionText" required="true"/>
+            <parameter name="difficultyLevel" type="Integer" required="true"/>
+            <parameter name="optionA" required="true"/>
+            <parameter name="optionB" required="true"/>
+            <parameter name="correctOption" required="true"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="questionId"/>
+        </out-parameters>
+        <actions>
+            <script><![CDATA[
+                // 1. Generate a primary key that both tables will share
+                questionId = ec.entity.sequencedIdPrimary("intelliprep.quiz.Question", null, null)
+                // 2. Insert into the HUB
+                def newHub = ec.entity.makeValue("intelliprep.quiz.Question")
+                newHub.questionId = questionId
+                newHub.questionText = questionText
+                newHub.questionTypeEnumId = "Qst_MultiChoice" // Using our Seed Data ID
+                newHub.difficultyLevel = difficultyLevel
+                newHub.create()
+                // 3. Insert into the SPOKE
+                def newSpoke = ec.entity.makeValue("intelliprep.quiz.MultipleChoice")
+                newSpoke.questionId = questionId // The link
+                newSpoke.optionA = optionA
+                newSpoke.optionB = optionB
+                newSpoke.correctOption = correctOption
+                newSpoke.create()
+
+                ec.logger.info("Successfully created Question ID: " + questionId)
+            ]]></script>
+        </actions>
+    </service>
+    <service verb="get" noun="QuestionsByDifficulty">
+        <in-parameters>
+            <parameter name="level" type="Integer" required="true"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="questionList" type="List"/>
+        </out-parameters>
+        <actions>
+            <script><![CDATA[
+                // Notice we query 'MultipleChoiceDetail' (the View) instead of the individual tables.
+                // The Entity Facade does the SQL JOIN automatically.
+                questionList = ec.entity.find("intelliprep.quiz.MultipleChoiceDetail")
+                    .condition("difficultyLevel", level)
+                    .orderBy("-questionId") // Order descending
+                    .list()
+
+                if (questionList) {
+                    ec.logger.info("Found " + questionList.size() + " questions at difficulty level " + level)
+                }
+            ]]></script>
+        </actions>
+    </service>
+    <service verb="update" noun="MultipleChoiceOptions">
+        <in-parameters>
+            <parameter name="questionId" required="true"/>
+            <parameter name="newOptionA" required="true"/>
+        </in-parameters>
+        <actions>
+            <script><![CDATA[
+                // 1. Fetch the specific spoke record
+                def spokeRecord = ec.entity.find("intelliprep.quiz.MultipleChoice")
+                    .condition("questionId", questionId)
+                    .one()
+
+                // 2. Modify and Update
+                if (spokeRecord != null) {
+                    spokeRecord.optionA = newOptionA
+                    spokeRecord.update()
+                    ec.logger.info("Updated Option A for Question: " + questionId)
+                } else {
+                    ec.message.addError("Question ID not found.")
+                }
+            ]]></script>
+        </actions>
+    </service>
+</services>

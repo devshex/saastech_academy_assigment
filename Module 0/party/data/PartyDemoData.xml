@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-facade-xml type="demo">
+    <tutorial.party.Party partyId="TEST-USER-01" partyTypeEnumId="PERSON" createdDate="2026-04-08T10:00:00"/>
+    <tutorial.party.Person partyId="TEST-USER-01" firstName="Bruce" lastName="Wayne"/>
+
+    <tutorial.party.Party partyId="WAYNE-ENT-01" partyTypeEnumId="PARTY_GROUP" createdDate="2026-04-08T10:00:00"/>
+    <tutorial.party.PartyGroup partyId="WAYNE-ENT-01" groupName="Wayne Enterprises" description="Global Conglomerate"/>
+
+    <tutorial.party.ContactMech contactMechId="EMAIL-01" contactMechTypeId="EMAIL" infoString="bruce@wayne.com"/>
+    <tutorial.party.ContactMech contactMechId="PHONE-01" contactMechTypeId="TELECOM_NUMBER" infoString="555-0199"/>
+
+    <tutorial.party.PartyContactMech partyId="TEST-USER-01" contactMechId="EMAIL-01" fromDate="2026-04-08T10:00:00"/>
+    <tutorial.party.PartyContactMech partyId="TEST-USER-01" contactMechId="PHONE-01" fromDate="2026-04-08T10:00:00"/>
+</entity-facade-xml>

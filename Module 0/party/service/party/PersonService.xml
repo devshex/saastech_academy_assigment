@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://moqui.org/xsd/service-definition-3.xsd">
+
+    <!--
+        Service: create#Person
+        Component: party
+        Full name (for calls): party.PersonService.create#Person
+
+        Required inputs : partyId, firstName, lastName
+        Optional input  : dateOfBirth
+        Extra inputs    : allowed via allow-extra="true"
+        Output          : responseMessage (success string)
+
+        Logic is delegated to an external Groovy file:
+            script/PersonServices.groovy
+        This satisfies the assignment requirement of a separate .groovy logic file.
+    -->
+    <service verb="create" noun="Person">
+        <in-parameters>
+            <!-- Required fields — Moqui rejects the call automatically if any are missing -->
+            <parameter name="partyId"   required="true"/>
+            <parameter name="firstName" required="true"/>
+            <parameter name="lastName"  required="true"/>
+
+            <!-- Optional — must match the dateOfBirth field type in PartyEntities.xml -->
+            <parameter name="dateOfBirth" type="Date"/>
+        </in-parameters>
+
+        <out-parameters>
+            <!-- Success message returned to the caller and visible in Moqui UI / REST response -->
+            <parameter name="responseMessage"/>
+        </out-parameters>
+
+        <actions>
+            <!--
+                Delegate all logic to the external Groovy file.
+                Moqui injects 'ec' and all in-parameters (partyId, firstName, etc.)
+                into the script's binding automatically — no manual DB connection needed.
+                Writing to 'responseMessage' here sets the out-parameter.
+            -->
+            <script location="component://party/script/PersonServices.groovy"/>
+        </actions>
+    </service>
+
+</services>

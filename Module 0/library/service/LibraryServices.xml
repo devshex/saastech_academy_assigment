@@ -1,0 +1,43 @@
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://moqui.org/xsd/service-definition-3.xsd">
+
+    <service verb="create" noun="Author">
+        <in-parameters>
+            <parameter name="authorId" required="true"/>
+            <parameter name="fullName" required="true"/>
+            <parameter name="bio" default-value="unknown"/>
+        </in-parameters>
+        <actions>
+            <script>
+                EntityValue newAuthor = ec.entity.makeValue("tutorial.library.Author")
+                newAuthor.set("authorId", authorId)
+                newAuthor.set("fullName", fullName)
+                newAuthor.set("bio", bio)
+
+                newAuthor.create()
+            </script>
+        </actions>
+    </service>
+
+
+
+    <service verb="create" noun="Book">
+
+        <in-parameters>
+            <parameter name="bookId" required="true"/>
+            <parameter name="title" required="true"/>
+            <parameter name="authorId" required="true"/>
+            <parameter name="genre" default-value="unknown"/>
+        </in-parameters>
+
+        <actions>
+            <script>
+                EntityValue newBook = ec.entity.makeValue("tutorial.library.Book")
+                newBook.set("bookId", bookId)
+                newBook.set("title", title)
+                newBook.set("authorId", authorId)
+                newBook.set("genre", genre)
+                newBook.create()
+            </script>
+        </actions>
+        </service>
+    </services>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/entity-definition-3.xsd">
+
+    <entity entity-name="QuestionType" package="intelliprep.quiz">
+        <field name="questionTypeEnumId" type="id" is-pk="true"/>
+        <field name="description" type="text-medium" />
+    </entity>
+
+    <entity entity-name="Question" package="intelliprep.quiz">
+        <field name="questionId" type="id" is-pk="true"/>
+        <field name="questionText" type="text-long"/>
+        <field name="questionTypeEnumId" type="id"/>
+        <field name="difficultyLevel" type="number-integer"/>
+        <relationship type="one" related="intelliprep.quiz.QuestionType"/>
+    </entity>
+
+    <entity entity-name="MultipleChoice" package="intelliprep.quiz">
+        <field name="questionId" type="id" is-pk="true"/>
+        <field name="optionA" type="text-medium"/>
+        <field name="optionB" type="text-medium"/>
+        <field name="correctOption" type="text-short"/>
+
+        <relationship type="one" related="intelliprep.quiz.Question"/>
+    </entity>
+
+    <view-entity entity-name="MultipleChoiceDetail" package="intelliprep.quiz">
+        <member-entity entity-alias="QST" entity-name="intelliprep.quiz.Question"/>
+        <member-entity entity-alias="MCQ" entity-name="intelliprep.quiz.MultipleChoice" join-from-alias="QST">
+            <key-map field-name="questionId"/>
+        </member-entity>
+
+        <alias-all entity-alias="QST"/>
+        <alias-all entity-alias="MCQ"/>
+    </view-entity>
+
+</entities>

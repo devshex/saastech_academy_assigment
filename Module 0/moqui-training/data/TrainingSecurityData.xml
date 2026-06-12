@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-facade-xml type="seed">
+
+    <moqui.security.ArtifactGroup artifactGroupId="TRAINING_SQL_RUNNER" description="SQL Runner Access"/>
+
+    <moqui.security.ArtifactGroupMember artifactGroupId="TRAINING_SQL_RUNNER"
+                                        artifactName="component://tools/screen/Tools/Entity/SqlRunner.xml"
+                                        artifactTypeEnumId="AT_XML_SCREEN"
+                                        inheritAuthz="Y"/>
+
+    <moqui.security.ArtifactAuthz artifactAuthzId="TRAIN_SQL_RUN_AUTHZ"
+                                  userGroupId="ADMIN"
+                                  artifactGroupId="TRAINING_SQL_RUNNER"
+                                  authzTypeEnumId="AUTHZT_ALWAYS"
+                                  authzActionEnumId="AUTHZA_ALL"/>
+
+</entity-facade-xml>

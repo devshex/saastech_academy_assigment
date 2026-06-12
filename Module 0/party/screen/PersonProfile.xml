@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
+        default-menu-title="Person Profile"
+        require-authentication="anonymous-all">
+
+    <parameter name="partyId" required="true"/>
+
+    <transition name="addContact">
+        <actions>
+            <set field="contactMechId" from="ec.entity.sequencedIdPrimary('tutorial.party.ContactMech', null, null)"/>
+            <service-call name="party.PartyService.create#PartyContact" in-map="context"/>
+        </actions>
+        <default-response url="."/>
+    </transition>
+
+    <!-- Deactivate: sets thruDate = now on the bridge record.
+         The button only appears for contacts that are still active (thruDate is blank). -->
+    <transition name="deactivateContact">
+        <actions>
+            <service-call name="party.PartyService.deactivate#PartyContact" in-map="context"/>
+        </actions>
+        <default-response url="."/>
+    </transition>
+
+    <transition name="reactivateContact">
+        <actions>
+            <service-call name="party.PartyService.reactivate#PartyContact" in-map="context"/>
+        </actions>
+        <default-response url="."/>
+    </transition>
+
+    <!-- Group Relationship Transitions -->
+    <transition name="addToGroup">
+        <actions>
+            <set field="fromPartyId" from="partyId"/>
+            <service-call name="party.PartyService.create#PartyRelationship" in-map="context"/>
+        </actions>
+        <default-response url="."/>
+    </transition>
+
+    <transition name="removeFromGroup">
+        <actions>
+            <set field="fromPartyId" from="partyId"/>
+            <service-call name="party.PartyService.deactivate#PartyRelationship" in-map="context"/>
+        </actions>
+        <default-response url="."/>
+    </transition>
+
+    <actions>
+        <entity-find-one entity-name="tutorial.party.Person" value-field="personInfo"/>
+
+        <entity-find entity-name="tutorial.party.PartyContactDetail" list="contactList">
+            <econdition field-name="partyId"/>
+            <order-by field-name="-fromDate"/>
+        </entity-find>
+
+        <!-- Fetch current group memberships -->
+        <entity-find entity-name="tutorial.party.GroupRelationshipDetail" list="groupList">
+            <econdition field-name="fromPartyId" from="partyId"/>
+            <econdition field-name="thruDate" operator="is-null"/>
+        </entity-find>
+
+        <!-- Fetch all available groups to populate the dropdown -->
+        <entity-find entity-name="tutorial.party.PartyGroup" list="allGroups">
+            <order-by field-name="groupName"/>
+        </entity-find>
+    </actions>
+
+    <widgets>
+        <link url="../PartyScreen" text="Back to Party List" icon="fa fa-arrow-left"/>
+
+        <container-box>
+            <box-header title="Profile: ${personInfo?.firstName} ${personInfo?.lastName}">
+
+                <container-dialog id="AddContactDialog" button-text="Add Contact Method">
+                    <form-single name="AddContactForm" transition="addContact">
+
+                        <field name="partyId"><default-field><hidden/></default-field></field>
+
+                        <field name="contactMechTypeId">
+                            <default-field title="Contact Type">
+                                <drop-down>
+                                    <option key="EMAIL_ADDRESS" text="Email Address"/>
+                                    <option key="TELECOM_NUMBER" text="Phone Number"/>
+                                </drop-down>
+                            </default-field>
+                        </field>
+
+                        <field name="infoString">
+                            <default-field title="Detail (e.g. john@email.com)"><text-line/></default-field>
+                        </field>
+
+                        <field name="submitButton">
+                            <default-field title="Save Contact"><submit/></default-field>
+                        </field>
+                    </form-single>
+                </container-dialog>
+
+            </box-header>
+
+            <box-body>
+                <label text="Saved Contact Methods" type="h4"/>
+
+                <form-list name="ContactList" list="contactList">
+                    <field name="contactMechTypeId">
+                        <default-field title="Type"><display/></default-field>
+                    </field>
+                    <field name="infoString">
+                        <default-field title="Contact Info"><display/></default-field>
+                    </field>
+                    <field name="fromDate">
+                        <default-field title="Added On"><display/></default-field>
+                    </field>
+                    <field name="thruDate">
+                        <default-field title="Active Until"><display/></default-field>
+                    </field>
+                    <!-- Action column: shows Deactivate when active, Reactivate when expired -->
+                    <field name="deactivateAction">
+                        <header-field title="Action"/>
+                        <default-field>
+                            <!-- Shown only when thruDate is NULL = contact is active -->
+                            <link url="deactivateContact" text="Deactivate" btn-type="danger"
+                                  condition="!thruDate"
+                                  parameter-map="[partyId:partyId, contactMechId:contactMechId, fromDate:fromDate]"/>
+                            <!-- Shown only when thruDate is SET = contact is expired -->
+                            <link url="reactivateContact" text="Reactivate" btn-type="success"
+                                  condition="thruDate"
+                                  parameter-map="[partyId:partyId, contactMechId:contactMechId, fromDate:fromDate]"/>
+                        </default-field>
+                    </field>
+                </form-list>
+            </box-body>
+        </container-box>
+
+        <!-- Container for Group Memberships -->
+        <container-box>
+            <box-header title="Group Memberships">
+                <container-dialog id="AddToGroupDialog" button-text="Add to Group">
+                    <form-single name="AddToGroupForm" transition="addToGroup">
+                        <field name="partyId"><default-field><hidden/></default-field></field>
+
+                        <!-- Dropdown of all available groups -->
+                        <field name="toPartyId">
+                            <default-field title="Select Group">
+                                <drop-down>
+                                    <list-options list="allGroups" key="${partyId}" text="${groupName}"/>
+                                </drop-down>
+                            </default-field>
+                        </field>
+
+                        <field name="submitButton">
+                            <default-field title="Add to Group"><submit/></default-field>
+                        </field>
+                    </form-single>
+                </container-dialog>
+            </box-header>
+
+            <box-body>
+                <form-list name="GroupList" list="groupList">
+                    <field name="groupName">
+                        <default-field title="Group Name"><display/></default-field>
+                    </field>
+                    <field name="fromDate">
+                        <default-field title="Member Since"><display/></default-field>
+                    </field>
+                    <field name="removeAction">
+                        <header-field title="Action"/>
+                        <default-field>
+                            <link url="removeFromGroup" text="Remove" btn-type="danger"
+                                  parameter-map="[partyId:fromPartyId, toPartyId:toPartyId, roleTypeId:roleTypeId, fromDate:fromDate]"/>
+                        </default-field>
+                    </field>
+                </form-list>
+            </box-body>
+        </container-box>
+    </widgets>
+</screen>

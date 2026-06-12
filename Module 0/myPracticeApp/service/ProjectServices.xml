@@ -1,0 +1,13 @@
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://moqui.org/xsd/service-definition-3.xsd">
+    <service verb="create" noun="ProjectTask">
+        <actions>
+            <script>
+                EntityValue newTask = ec.entity.makeValue("tutorial.project.ProjectTask")
+                newTask.set("taskId", "TASK-103")
+                newTask.set("taskName", "Deploy to Docker")
+                newTask.set("status", "OPEN")
+                newTask.create()
+            </script>
+        </actions>
+    </service>
+</services>

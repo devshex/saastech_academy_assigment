@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
+        default-menu-title="Group Profile"
+        require-authentication="anonymous-all">
+
+    <parameter name="partyId" required="true"/>
+
+    <!-- Group Relationship Transitions -->
+    <transition name="addPerson">
+        <actions>
+            <set field="toPartyId" from="partyId"/>
+            <!-- Force ROLE to MEMBER so it matches -->
+            <set field="roleTypeId" value="MEMBER"/>
+            <service-call name="party.PartyService.create#PartyRelationship" in-map="context"/>
+        </actions>
+        <default-response url="."/>
+    </transition>
+
+    <transition name="removePerson">
+        <actions>
+            <set field="toPartyId" from="partyId"/>
+            <service-call name="party.PartyService.deactivate#PartyRelationship" in-map="context"/>
+        </actions>
+        <default-response url="."/>
+    </transition>
+
+    <actions>
+        <!-- Fetch Group Info -->
+        <entity-find-one entity-name="tutorial.party.PartyGroup" value-field="groupInfo"/>
+
+        <!-- Fetch current people in this group -->
+        <entity-find entity-name="tutorial.party.PartyRelationshipDetail" list="personList">
+            <econdition field-name="toPartyId" from="partyId"/>
+            <econdition field-name="thruDate" operator="is-null"/>
+        </entity-find>
+
+        <!-- Fetch all available people so we can add them to this group -->
+        <entity-find entity-name="tutorial.party.Person" list="allPersons">
+            <order-by field-name="firstName"/>
+            <order-by field-name="lastName"/>
+        </entity-find>
+    </actions>
+
+    <widgets>
+        <link url="../PartyScreen" text="Back to Party List" icon="fa fa-arrow-left"/>
+
+        <container-box>
+            <box-header title="Group: ${groupInfo?.groupName}">
+            </box-header>
+
+            <box-body>
+                <label text="${groupInfo?.description ?: 'No description available'}" type="h4"/>
+            </box-body>
+        </container-box>
+
+        <!-- Container for People Memberships -->
+        <container-box>
+            <box-header title="People in this Group">
+                <container-dialog id="AddPersonDialog" button-text="Add Person">
+                    <form-single name="AddPersonForm" transition="addPerson">
+                        <field name="partyId"><default-field><hidden/></default-field></field>
+
+                        <!-- Dropdown of all available people -->
+                        <field name="fromPartyId">
+                            <default-field title="Select Person">
+                                <drop-down>
+                                    <list-options list="allPersons" key="${partyId}" text="${firstName} ${lastName}"/>
+                                </drop-down>
+                            </default-field>
+                        </field>
+
+                        <field name="submitButton">
+                            <default-field title="Add Person"><submit/></default-field>
+                        </field>
+                    </form-single>
+                </container-dialog>
+            </box-header>
+
+            <box-body>
+                <form-list name="PersonList" list="personList">
+                    <field name="firstName">
+                        <default-field title="First Name"><display/></default-field>
+                    </field>
+                    <field name="lastName">
+                        <default-field title="Last Name"><display/></default-field>
+                    </field>
+                    <field name="fromDate">
+                        <default-field title="Member Since"><display/></default-field>
+                    </field>
+                    <field name="removeAction">
+                        <header-field title="Action"/>
+                        <default-field>
+                            <link url="removePerson" text="Remove" btn-type="danger"
+                                  parameter-map="[partyId:toPartyId, fromPartyId:fromPartyId, roleTypeId:roleTypeId, fromDate:fromDate]"/>
+                        </default-field>
+                    </field>
+                </form-list>
+            </box-body>
+        </container-box>
+    </widgets>
+</screen>

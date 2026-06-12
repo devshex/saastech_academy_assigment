@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/entity-definition-3.xsd">
+
+    <entity entity-name="Party" package="tutorial.party">
+        <field name="partyId" type="id" is-pk="true"/>
+        <field name="partyTypeEnumId" type="id"/>
+        <field name="createdDate" type="date-time"/>
+    </entity>
+    
+    <entity entity-name="Person" package="tutorial.party">
+        <field name="partyId" type="id" is-pk="true"/>
+        <field name="firstName" type="text-medium"/>
+        <field name="lastName" type="text-medium"/>
+        <field name="dateOfBirth" type="date"/>
+        <relationship type="one" related="tutorial.party.Party" short-alias="party"/>
+    </entity>
+    
+    <entity entity-name="PartyGroup" package="tutorial.party">
+        <field name="partyId" type="id" is-pk="true"/>
+        <field name="groupName" type="text-medium"/>
+        <field name="description" type="text-medium"/>
+        <relationship type="one" related="tutorial.party.Party" short-alias="party"/>
+    </entity>
+
+    <entity entity-name="ContactMech" package="tutorial.party">
+        <field name="contactMechId" type="id" is-pk="true"/>
+        <field name="contactMechTypeId" type="id"/>
+        <field name="infoString" type="text-medium"/>
+        <field name="createdDate" type="date-time"/>
+    </entity>
+    
+    <entity entity-name="PartyContactMech" package="tutorial.party">
+        <field name="partyId" type="id" is-pk="true"/>
+        <field name="contactMechId" type="id" is-pk="true"/>
+        <field name="fromDate" type="date-time" is-pk="true"/>
+        <field name="thruDate" type="date-time"/>
+        <relationship type="one" related="tutorial.party.Party" short-alias="party"/>
+        <relationship type="one" related="tutorial.party.ContactMech" short-alias="contactMech"/>
+    </entity>
+
+
+    <!-- View Entity: JOINs PartyContactMech + ContactMech so screens can display
+         the actual contact value (infoString) and type (contactMechTypeId)
+         alongside the bridge-table dates — without writing raw SQL. -->
+    <view-entity entity-name="PartyContactDetail" package="tutorial.party">
+        <!-- Primary table: the bridge between Party and ContactMech -->
+        <member-entity entity-alias="PCM" entity-name="tutorial.party.PartyContactMech"/>
+        <!-- Joined table: the actual contact record (email / phone) -->
+        <member-entity entity-alias="CM" entity-name="tutorial.party.ContactMech"
+                       join-from-alias="PCM" join-type="inner">
+            <key-map field-name="contactMechId"/>
+        </member-entity>
+        <!-- Expose fields from the bridge table -->
+        <alias entity-alias="PCM" name="partyId"/>
+        <alias entity-alias="PCM" name="contactMechId"/>
+        <alias entity-alias="PCM" name="fromDate"/>
+        <alias entity-alias="PCM" name="thruDate"/>
+        <!-- Expose fields from the contact detail table -->
+        <alias entity-alias="CM" name="contactMechTypeId"/>
+        <alias entity-alias="CM" name="infoString"/>
+    </view-entity>
+
+    <!-- Connects a Person to a PartyGroup or two Parties together -->
+    <entity entity-name="PartyRelationship" package="tutorial.party">
+        <field name="fromPartyId" type="id" is-pk="true"/>
+        <field name="toPartyId" type="id" is-pk="true"/>
+        <field name="roleTypeId" type="id" is-pk="true"/>
+        <field name="fromDate" type="date-time" is-pk="true"/>
+        <field name="thruDate" type="date-time"/>
+        <relationship type="one" related="tutorial.party.Party" short-alias="fromParty">
+            <key-map field-name="fromPartyId" related="partyId"/>
+        </relationship>
+        <relationship type="one" related="tutorial.party.Party" short-alias="toParty">
+            <key-map field-name="toPartyId" related="partyId"/>
+        </relationship>
+    </entity>
+
+    <!-- View Entity: Show Persons inside a Group -->
+    <view-entity entity-name="PartyRelationshipDetail" package="tutorial.party">
+        <member-entity entity-alias="PR" entity-name="tutorial.party.PartyRelationship"/>
+        <member-entity entity-alias="PER" entity-name="tutorial.party.Person" join-from-alias="PR" join-type="inner">
+            <!-- If we look up a Group (toPartyId), the Person is the fromPartyId -->
+            <key-map field-name="fromPartyId" related="partyId"/>
+        </member-entity>
+        <alias entity-alias="PR" name="toPartyId"/>
+        <alias entity-alias="PR" name="fromPartyId"/>
+        <alias entity-alias="PR" name="roleTypeId"/>
+        <alias entity-alias="PR" name="fromDate"/>
+        <alias entity-alias="PR" name="thruDate"/>
+        <alias entity-alias="PER" name="firstName"/>
+        <alias entity-alias="PER" name="lastName"/>
+    </view-entity>
+
+    <!-- View Entity: Show Groups for a Person -->
+    <view-entity entity-name="GroupRelationshipDetail" package="tutorial.party">
+        <member-entity entity-alias="PR" entity-name="tutorial.party.PartyRelationship"/>
+        <member-entity entity-alias="PG" entity-name="tutorial.party.PartyGroup" join-from-alias="PR" join-type="inner">
+            <!-- If we look up a Person (fromPartyId), the Group is the toPartyId -->
+            <key-map field-name="toPartyId" related="partyId"/>
+        </member-entity>
+        <alias entity-alias="PR" name="fromPartyId"/>
+        <alias entity-alias="PR" name="toPartyId"/>
+        <alias entity-alias="PR" name="roleTypeId"/>
+        <alias entity-alias="PR" name="fromDate"/>
+        <alias entity-alias="PR" name="thruDate"/>
+        <alias entity-alias="PG" name="groupName"/>
+    </view-entity>
+
+</entities>
