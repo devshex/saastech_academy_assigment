@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://ofbiz.apache.org/dtds/services.xsd">
+
+    <description>ProductManagement Services</description>
+
+    <service name="findProduct" engine="groovy"
+            location="component://productmanagement/src/main/groovy/org/apache/ofbiz/productmanagement/ProductServices.groovy" invoke="findProduct">
+        <description>Find Product Service</description>
+        <attribute name="productId" type="String" mode="IN" optional="true"/>
+        <attribute name="internalName" type="String" mode="IN" optional="true"/>
+        <attribute name="productCategoryId" type="String" mode="IN" optional="true"/>
+        <attribute name="productList" type="List" mode="OUT" optional="true"/>
+    </service>
+
+    <service name="createProduct" engine="groovy"
+            location="component://productmanagement/src/main/groovy/org/apache/ofbiz/productmanagement/ProductServices.groovy" invoke="createProduct">
+        <description>Create Product Service</description>
+        <attribute name="internalName" type="String" mode="IN" optional="false"/>
+        <attribute name="productCategoryId" type="String" mode="IN" optional="false"/>
+        <attribute name="price" type="BigDecimal" mode="IN" optional="false"/>
+        <attribute name="productId" type="String" mode="OUT" optional="true"/>
+    </service>
+
+    <service name="updateProduct" engine="groovy"
+            location="component://productmanagement/src/main/groovy/org/apache/ofbiz/productmanagement/ProductServices.groovy" invoke="updateProduct">
+        <description>Update Product Service</description>
+        <attribute name="productId" type="String" mode="IN" optional="false"/>
+        <attribute name="price" type="BigDecimal" mode="IN" optional="true"/>
+        <attribute name="internalName" type="String" mode="IN" optional="true"/>
+    </service>
+
+    <service name="assocProductToVirtual" engine="groovy"
+            location="component://productmanagement/src/main/groovy/org/apache/ofbiz/productmanagement/ProductServices.groovy" invoke="assocProductToVirtual">
+        <description>Associate Product to Virtual</description>
+        <attribute name="productId" type="String" mode="IN" optional="false"/>
+        <attribute name="productIdTo" type="String" mode="IN" optional="false"/>
+    </service>
+
+    <service name="updateProductVariant" engine="groovy"
+            location="component://productmanagement/src/main/groovy/org/apache/ofbiz/productmanagement/ProductServices.groovy" invoke="updateProductVariant">
+        <description>Update Product Variant</description>
+        <attribute name="productId" type="String" mode="IN" optional="false"/>
+        <attribute name="productIdTo" type="String" mode="IN" optional="false"/>
+    </service>
+
+</services>

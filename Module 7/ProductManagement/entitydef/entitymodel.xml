@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entitymodel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://ofbiz.apache.org/dtds/entitymodel.xsd">
+    <title>Entity of ProductManagement Component</title>
+
+    <view-entity entity-name="FindProductView"
+            package-name="org.apache.ofbiz.productmanagement"
+            title="View Entity for finding products">
+        <member-entity entity-alias="PROD" entity-name="Product"/>
+        <member-entity entity-alias="PCM" entity-name="ProductCategoryMember"/>
+        <member-entity entity-alias="PC" entity-name="ProductCategory"/>
+        <member-entity entity-alias="PP" entity-name="ProductPrice"/>
+
+        <alias-all entity-alias="PROD"/>
+        <alias entity-alias="PC" name="productCategoryId"/>
+        <alias entity-alias="PC" name="categoryName"/>
+        <alias entity-alias="PP" name="price"/>
+        <alias entity-alias="PP" name="productPriceTypeId"/>
+
+        <view-link entity-alias="PROD" rel-entity-alias="PCM">
+            <key-map field-name="productId"/>
+        </view-link>
+        <view-link entity-alias="PCM" rel-entity-alias="PC">
+            <key-map field-name="productCategoryId"/>
+        </view-link>
+        <view-link entity-alias="PROD" rel-entity-alias="PP">
+            <key-map field-name="productId"/>
+        </view-link>
+    </view-entity>
+</entitymodel>
