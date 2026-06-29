@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-facade-xml type="seed">
+    <ordermgmtsystem.OrderHeader orderId="10000" orderName="Sample Order 1" orderDate="2026-06-29 10:00:00.000" statusId="ORDER_APPROVED" currencyUomId="USD" grandTotal="150.00"/>
+    <ordermgmtsystem.OrderItem orderId="10000" orderItemSeqId="01" productId="PROD_01" quantity="2" unitPrice="75.00" itemDescription="Sample Product 1"/>
+    
+    <ordermgmtsystem.OrderHeader orderId="10001" orderName="Sample Order 2" orderDate="2026-06-29 11:30:00.000" statusId="ORDER_CREATED" currencyUomId="USD" grandTotal="300.00"/>
+    <ordermgmtsystem.OrderItem orderId="10001" orderItemSeqId="01" productId="PROD_02" quantity="1" unitPrice="300.00" itemDescription="Sample Product 2"/>
+</entity-facade-xml>
