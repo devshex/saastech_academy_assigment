@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/component-3.0.xsd"
+           name="ordermgmtsystem" version="1.0.0">
+    <entity-facade>
+        <load-entity/>
+    </entity-facade>
+    <screen-facade>
+        <load-screen/>
+    </screen-facade>
+</component>
